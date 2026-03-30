@@ -1,0 +1,36 @@
+@model ServiceCategory
+@{
+    ViewData["Title"] = "Новая категория";
+}
+<div class="row justify-content-center"><div class="col-md-6">
+    <div class="admin-card p-4">
+        <h5 class="text-white mb-4">Добавить категорию</h5>
+        <form asp-action="CreateCategory" method="post">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small"></div>
+            <div class="mb-3">
+                <label asp-for="Name" class="bs-label">Название</label>
+                <input asp-for="Name" class="form-control bs-form-control" />
+                <span asp-validation-for="Name" class="text-danger small"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Description" class="bs-label">Описание</label>
+                <textarea asp-for="Description" class="form-control bs-form-control" rows="2"></textarea>
+            </div>
+            <div class="mb-3">
+                <label asp-for="SortOrder" class="bs-label">Порядок сортировки</label>
+                <input asp-for="SortOrder" type="number" class="form-control bs-form-control" />
+            </div>
+            <div class="mb-4">
+                <div class="form-check">
+                    <input asp-for="IsActive" class="form-check-input" checked />
+                    <label asp-for="IsActive" class="form-check-label text-muted">Активна</label>
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn bs-btn-gold">Сохранить</button>
+                <a asp-action="Categories" class="btn btn-outline-secondary">Отмена</a>
+            </div>
+        </form>
+    </div>
+</div></div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

@@ -1,0 +1,77 @@
+@model Barber
+@{
+    ViewData["Title"] = "Новый мастер";
+    var allServices = ViewBag.AllServices as List<Service> ?? new();
+    var selectedServices = (ViewBag.SelectedServices as int[]) ?? Array.Empty<int>();
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="admin-card p-4">
+            <h5 class="text-white mb-4"><i class="bi bi-person-plus text-gold me-2"></i>Добавить мастера</h5>
+            <form asp-action="Create" method="post">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small"></div>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4">
+                        <label asp-for="FirstName" class="bs-label">Имя</label>
+                        <input asp-for="FirstName" class="form-control bs-form-control" />
+                        <span asp-validation-for="FirstName" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="LastName" class="bs-label">Фамилия</label>
+                        <input asp-for="LastName" class="form-control bs-form-control" />
+                        <span asp-validation-for="LastName" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="Patronymic" class="bs-label">Отчество</label>
+                        <input asp-for="Patronymic" class="form-control bs-form-control" />
+                    </div>
+                </div>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-5">
+                        <label asp-for="Phone" class="bs-label">Телефон</label>
+                        <input asp-for="Phone" class="form-control bs-form-control" />
+                    </div>
+                    <div class="col-md-3">
+                        <label asp-for="ExperienceYears" class="bs-label">Стаж (лет)</label>
+                        <input asp-for="ExperienceYears" type="number" class="form-control bs-form-control" min="0" />
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end pb-1">
+                        <div class="form-check">
+                            <input asp-for="IsActive" class="form-check-input" checked />
+                            <label asp-for="IsActive" class="form-check-label text-muted">Активен</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Bio" class="bs-label">Биография</label>
+                    <textarea asp-for="Bio" class="form-control bs-form-control" rows="3"></textarea>
+                </div>
+                <div class="mb-4">
+                    <label class="bs-label">Услуги мастера</label>
+                    <div class="row g-2 p-3" style="background:var(--bs-dark-card2);border-radius:8px;border:1px solid var(--bs-dark-border)">
+                        @foreach (var svc in allServices)
+                        {
+                            <div class="col-md-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="selectedServices"
+                                           value="@svc.Id" id="svc_@svc.Id"
+                                           @(selectedServices.Contains(svc.Id) ? "checked" : "") />
+                                    <label class="form-check-label text-muted small" for="svc_@svc.Id">
+                                        @svc.Name
+                                    </label>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn bs-btn-gold">Сохранить</button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">Отмена</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

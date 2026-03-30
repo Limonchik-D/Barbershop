@@ -1,0 +1,74 @@
+@model List<AppointmentListItemViewModel>
+@{
+    ViewData["Title"] = "Мои записи";
+}
+
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="text-white mb-0"><i class="bi bi-calendar2-check text-gold me-2"></i>Мои записи</h3>
+        <a asp-controller="Appointments" asp-action="Book" class="btn bs-btn-gold btn-sm">
+            <i class="bi bi-plus-lg me-1"></i>Новая запись
+        </a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5">
+            <i class="bi bi-calendar-x text-gold" style="font-size:4rem"></i>
+            <h5 class="text-muted mt-3">У вас пока нет записей</h5>
+            <a asp-controller="Appointments" asp-action="Book" class="btn bs-btn-gold mt-3">Записаться</a>
+        </div>
+    }
+    else
+    {
+        @foreach (var appt in Model)
+        {
+            <div class="bs-appt-card">
+                <div class="row align-items-center g-3">
+                    <div class="col-md-2 text-center">
+                        <div class="text-gold fw-bold fs-4">@appt.AppointmentDate.Day</div>
+                        <div class="text-muted small">@appt.AppointmentDate.ToString("MMM yyyy")</div>
+                        <div class="text-white small">@appt.StartTime.ToString("HH:mm") – @appt.EndTime.ToString("HH:mm")</div>
+                    </div>
+                    <div class="col-md-5">
+                        <h6 class="text-white mb-1">@appt.ServiceName</h6>
+                        <p class="text-muted small mb-0"><i class="bi bi-person me-1"></i>@appt.BarberName</p>
+                    </div>
+                    <div class="col-md-2 text-center">
+                        <div class="text-gold fw-bold">@appt.TotalPrice.ToString("N0") ₽</div>
+                    </div>
+                    <div class="col-md-2 text-center">
+                        <span class="badge rounded-pill px-3 py-2
+                            @(appt.Status switch {
+                                AppointmentStatus.Pending   => "badge-pending",
+                                AppointmentStatus.Confirmed => "badge-confirmed",
+                                AppointmentStatus.Completed => "badge-completed",
+                                AppointmentStatus.Cancelled => "badge-cancelled",
+                                _ => "badge-noshow"
+                            })">
+                            @(appt.Status switch {
+                                AppointmentStatus.Pending   => "Ожидается",
+                                AppointmentStatus.Confirmed => "Подтверждена",
+                                AppointmentStatus.Completed => "Завершена",
+                                AppointmentStatus.Cancelled => "Отменена",
+                                _ => "Неявка"
+                            })
+                        </span>
+                    </div>
+                    <div class="col-md-1 text-end">
+                        @if (appt.CanCancel)
+                        {
+                            <form asp-controller="Appointments" asp-action="Cancel" method="post"
+                                  onsubmit="return confirm('Отменить запись?')">
+                                <input type="hidden" name="id" value="@appt.Id" />
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
+                            </form>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>

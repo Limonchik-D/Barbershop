@@ -1,0 +1,57 @@
+@model List<Barber>
+@{
+    ViewData["Title"] = "Мастера";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h5 class="text-white mb-0">Мастера</h5>
+        <div class="text-muted small">Всего: @Model.Count</div>
+    </div>
+    <a asp-action="Create" class="btn btn-sm bs-btn-gold">
+        <i class="bi bi-person-plus me-1"></i>Добавить мастера
+    </a>
+</div>
+
+<div class="row g-3">
+    @foreach (var barber in Model)
+    {
+        <div class="col-md-6 col-lg-4">
+            <div class="admin-card p-3">
+                <div class="d-flex gap-3 align-items-start">
+                    <div class="rounded-circle bg-dark-card2 d-flex align-items-center justify-content-center flex-shrink-0"
+                         style="width:48px;height:48px;font-size:1.5rem;color:var(--bs-gold)">
+                        <i class="bi bi-person-circle"></i>
+                    </div>
+                    <div class="flex-grow-1 min-w-0">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <h6 class="text-white mb-0 text-truncate">@barber.FullName</h6>
+                            @if (barber.IsActive)
+                            {
+                                <span class="badge badge-completed rounded-pill px-2 flex-shrink-0" style="font-size:.65rem">Активен</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-cancelled rounded-pill px-2 flex-shrink-0" style="font-size:.65rem">Неактивен</span>
+                            }
+                        </div>
+                        <div class="text-muted small mb-1">Стаж @barber.ExperienceYears лет</div>
+                        <div class="text-muted" style="font-size:.75rem">
+                            Услуг: @barber.BarberServices.Count
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex gap-2 mt-3">
+                    <a asp-action="Edit" asp-route-id="@barber.Id"
+                       class="btn btn-sm btn-outline-secondary flex-fill">
+                        <i class="bi bi-pencil me-1"></i>Изменить
+                    </a>
+                    <a asp-action="Schedule" asp-route-id="@barber.Id"
+                       class="btn btn-sm btn-outline-secondary flex-fill">
+                        <i class="bi bi-calendar3 me-1"></i>Расписание
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+</div>

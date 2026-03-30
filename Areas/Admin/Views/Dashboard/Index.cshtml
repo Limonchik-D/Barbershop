@@ -1,0 +1,151 @@
+@model DashboardViewModel
+@{
+    ViewData["Title"] = "Дашборд";
+}
+
+<!-- Статистика -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="text-muted small mb-1">Записей сегодня</div>
+                    <div class="text-white fw-bold fs-3">@Model.TotalAppointmentsToday</div>
+                </div>
+                <div class="stat-icon" style="background:rgba(201,169,110,.1)">
+                    <i class="bi bi-calendar-check text-gold"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="text-muted small mb-1">Ожидают подтверждения</div>
+                    <div class="text-warning fw-bold fs-3">@Model.PendingAppointments</div>
+                </div>
+                <div class="stat-icon" style="background:rgba(255,193,7,.1)">
+                    <i class="bi bi-hourglass-split text-warning"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="text-muted small mb-1">Выручка сегодня</div>
+                    <div class="text-success fw-bold fs-3">@Model.RevenueToday.ToString("N0") ₽</div>
+                </div>
+                <div class="stat-icon" style="background:rgba(25,135,84,.1)">
+                    <i class="bi bi-cash-coin text-success"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="text-muted small mb-1">Выручка за месяц</div>
+                    <div class="text-gold fw-bold fs-3">@Model.RevenueThisMonth.ToString("N0") ₽</div>
+                </div>
+                <div class="stat-icon" style="background:rgba(201,169,110,.1)">
+                    <i class="bi bi-graph-up text-gold"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Последние записи -->
+    <div class="col-lg-8">
+        <div class="admin-card p-3">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="text-white mb-0">Последние записи</h6>
+                <a asp-area="Admin" asp-controller="Appointments" asp-action="Index"
+                   class="text-gold small text-decoration-none">Все записи →</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table bs-table table-borderless mb-0" style="font-size:.875rem">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Клиент</th>
+                            <th>Услуга</th>
+                            <th>Мастер</th>
+                            <th>Дата/Время</th>
+                            <th>Статус</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var appt in Model.RecentAppointments)
+                        {
+                            <tr>
+                                <td class="text-muted">@appt.Id</td>
+                                <td class="text-white">@appt.ClientName</td>
+                                <td class="text-muted">@appt.ServiceName</td>
+                                <td class="text-muted">@appt.BarberName</td>
+                                <td class="text-muted" style="white-space:nowrap">
+                                    @appt.Date.ToString("dd.MM")<br>
+                                    <span style="font-size:.75rem">@appt.TimeRange</span>
+                                </td>
+                                <td>
+                                    <span class="badge rounded-pill px-2 badge-@appt.StatusClass.ToLower()">
+                                        @(appt.Status switch {
+                                            "Pending"   => "Ожидается",
+                                            "Confirmed" => "Подтверждена",
+                                            "Completed" => "Завершена",
+                                            "Cancelled" => "Отменена",
+                                            _ => appt.Status
+                                        })
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Мастера -->
+    <div class="col-lg-4">
+        <div class="admin-card p-3 mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="text-white mb-0">Мастера за месяц</h6>
+                <span class="text-muted small">@DateTime.Now.ToString("MMMM")</span>
+            </div>
+            @foreach (var stat in Model.BarberStats)
+            {
+                <div class="d-flex justify-content-between align-items-center py-2 border-bottom border-secondary">
+                    <div>
+                        <div class="text-white small">@stat.BarberName</div>
+                        <div class="text-muted" style="font-size:.75rem">@stat.AppointmentsThisMonth записей</div>
+                    </div>
+                    <div class="text-gold small fw-bold">@stat.RevenueThisMonth.ToString("N0") ₽</div>
+                </div>
+            }
+        </div>
+
+        <div class="admin-card p-3">
+            <h6 class="text-white mb-3">Быстрые действия</h6>
+            <div class="d-grid gap-2">
+                <a asp-area="Admin" asp-controller="Appointments" asp-action="Index"
+                   asp-route-status="Pending" class="btn btn-sm btn-outline-warning">
+                    <i class="bi bi-hourglass-split me-2"></i>Ожидающие (@Model.PendingAppointments)
+                </a>
+                <a asp-area="Admin" asp-controller="Barbers" asp-action="Create"
+                   class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-person-plus me-2"></i>Добавить мастера
+                </a>
+                <a asp-area="Admin" asp-controller="Services" asp-action="Create"
+                   class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-plus-circle me-2"></i>Добавить услугу
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

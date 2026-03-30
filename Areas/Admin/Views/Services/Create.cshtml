@@ -1,0 +1,56 @@
+@model Service
+@{
+    ViewData["Title"] = "Новая услуга";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="admin-card p-4">
+            <h5 class="text-white mb-4">Добавить услугу</h5>
+            <form asp-action="Create" method="post">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small"></div>
+                <div class="mb-3">
+                    <label asp-for="CategoryId" class="bs-label">Категория</label>
+                    <select asp-for="CategoryId" asp-items="ViewBag.Categories"
+                            class="form-select bs-form-select">
+                        <option value="">— Выберите категорию —</option>
+                    </select>
+                    <span asp-validation-for="CategoryId" class="text-danger small"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Name" class="bs-label">Название</label>
+                    <input asp-for="Name" class="form-control bs-form-control" />
+                    <span asp-validation-for="Name" class="text-danger small"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Description" class="bs-label">Описание</label>
+                    <textarea asp-for="Description" class="form-control bs-form-control" rows="3"></textarea>
+                </div>
+                <div class="row g-3 mb-3">
+                    <div class="col-6">
+                        <label asp-for="Duration" class="bs-label">Длительность (мин)</label>
+                        <input asp-for="Duration" type="number" class="form-control bs-form-control" min="10" step="5" />
+                        <span asp-validation-for="Duration" class="text-danger small"></span>
+                    </div>
+                    <div class="col-6">
+                        <label asp-for="Price" class="bs-label">Цена (₽)</label>
+                        <input asp-for="Price" type="number" class="form-control bs-form-control" min="0" step="50" />
+                        <span asp-validation-for="Price" class="text-danger small"></span>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <div class="form-check">
+                        <input asp-for="IsActive" class="form-check-input" />
+                        <label asp-for="IsActive" class="form-check-label text-muted">Активна</label>
+                    </div>
+                </div>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn bs-btn-gold">Сохранить</button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">Отмена</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

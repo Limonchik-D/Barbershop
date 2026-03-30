@@ -1,0 +1,190 @@
+@model Appointment
+@{
+    ViewData["Title"] = $"Запись #{Model.Id}";
+    var statusLabels = new Dictionary<AppointmentStatus, (string label, string cls)>
+    {
+        [AppointmentStatus.Pending]   = ("Ожидается",    "badge-pending"),
+        [AppointmentStatus.Confirmed] = ("Подтверждена", "badge-confirmed"),
+        [AppointmentStatus.Completed] = ("Завершена",    "badge-completed"),
+        [AppointmentStatus.Cancelled] = ("Отменена",     "badge-cancelled"),
+        [AppointmentStatus.NoShow]    = ("Неявка",       "badge-noshow")
+    };
+    var (statusLabel, statusCls) = statusLabels.TryGetValue(Model.Status, out var sv)
+        ? sv : (Model.Status.ToString(), "badge-noshow");
+}
+
+<div class="d-flex align-items-center gap-3 mb-4">
+    <a asp-action="Index" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i></a>
+    <div>
+        <h5 class="text-white mb-0">Запись #@Model.Id</h5>
+        <div class="text-muted small">Создана: @Model.CreatedAt.ToString("dd.MM.yyyy HH:mm")</div>
+    </div>
+    <span class="badge rounded-pill px-3 py-2 @statusCls ms-2">@statusLabel</span>
+</div>
+
+<div class="row g-4">
+    <!-- Детали -->
+    <div class="col-lg-7">
+        <div class="admin-card p-4 mb-4">
+            <h6 class="text-gold mb-3">Информация о записи</h6>
+            <div class="row g-3">
+                <div class="col-sm-6">
+                    <div class="text-muted small">Клиент</div>
+                    <div class="text-white">@Model.Client.FullName</div>
+                    <div class="text-muted small">@Model.Client.Email</div>
+                    <div class="text-muted small">@Model.Client.PhoneNumber</div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="text-muted small">Мастер</div>
+                    <div class="text-white">@Model.Barber.FullName</div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="text-muted small">Услуга</div>
+                    <div class="text-white">@Model.Service.Name</div>
+                    <div class="text-muted small">@Model.Service.Duration мин</div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="text-muted small">Дата и время</div>
+                    <div class="text-white">@Model.AppointmentDate.ToString("dd MMMM yyyy")</div>
+                    <div class="text-gold">@Model.StartTime.ToString("HH:mm") – @Model.EndTime.ToString("HH:mm")</div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="text-muted small">Стоимость</div>
+                    <div class="text-gold fw-bold fs-5">@Model.TotalPrice.ToString("N0") ₽</div>
+                </div>
+                @if (!string.IsNullOrEmpty(Model.Notes))
+                {
+                    <div class="col-12">
+                        <div class="text-muted small">Комментарий клиента</div>
+                        <div class="text-white">@Model.Notes</div>
+                    </div>
+                }
+                @if (Model.Status == AppointmentStatus.Cancelled && !string.IsNullOrEmpty(Model.CancelReason))
+                {
+                    <div class="col-12">
+                        <div class="text-muted small">Причина отмены</div>
+                        <div class="text-danger">@Model.CancelReason</div>
+                        <div class="text-muted" style="font-size:.75rem">
+                            @Model.CancelledAt?.ToString("dd.MM.yyyy HH:mm")
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Оплата -->
+        <div class="admin-card p-4">
+            <h6 class="text-gold mb-3"><i class="bi bi-cash-coin me-2"></i>Оплата</h6>
+            @if (Model.Payment?.Status == PaymentStatus.Paid)
+            {
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <div class="text-muted small">Сумма</div>
+                        <div class="text-success fw-bold">@Model.Payment.Amount.ToString("N0") ₽</div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-muted small">Способ</div>
+                        <div class="text-white">
+                            @(Model.Payment.Method switch {
+                                PaymentMethod.Cash   => "Наличные",
+                                PaymentMethod.Card   => "Карта",
+                                PaymentMethod.Online => "Онлайн",
+                                _ => Model.Payment.Method.ToString()
+                            })
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-muted small">Оплачено</div>
+                        <div class="text-white">@Model.Payment.PaidAt?.ToString("dd.MM.yyyy HH:mm")</div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-muted small">Статус</div>
+                        <span class="badge badge-completed rounded-pill px-2">Оплачено</span>
+                    </div>
+                </div>
+            }
+            else if (Model.Status != AppointmentStatus.Cancelled)
+            {
+                <form asp-action="RecordPayment" method="post">
+                    <input type="hidden" name="appointmentId" value="@Model.Id" />
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="bs-label">Сумма</label>
+                            <input type="number" name="amount" class="form-control bs-form-control"
+                                   value="@Model.TotalPrice" step="50" />
+                        </div>
+                        <div class="col-6">
+                            <label class="bs-label">Способ оплаты</label>
+                            <select name="method" class="form-select bs-form-select">
+                                <option value="0">Наличные</option>
+                                <option value="1">Карта</option>
+                                <option value="2">Онлайн</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="bs-label">Примечание</label>
+                            <input type="text" name="notes" class="form-control bs-form-control"
+                                   placeholder="Необязательно..." />
+                        </div>
+                    </div>
+                    <button type="submit" class="btn bs-btn-gold w-100">
+                        <i class="bi bi-check2-circle me-2"></i>Зафиксировать оплату
+                    </button>
+                </form>
+            }
+            else
+            {
+                <p class="text-muted small mb-0">Запись отменена</p>
+            }
+        </div>
+    </div>
+
+    <!-- Действия -->
+    <div class="col-lg-5">
+        <div class="admin-card p-4 mb-4">
+            <h6 class="text-gold mb-3">Действия</h6>
+            <div class="d-grid gap-2">
+                @if (Model.Status == AppointmentStatus.Pending)
+                {
+                    <form asp-action="Confirm" asp-route-id="@Model.Id" method="post">
+                        <button type="submit" class="btn btn-outline-info w-100">
+                            <i class="bi bi-check2 me-2"></i>Подтвердить
+                        </button>
+                    </form>
+                }
+                @if (Model.Status is AppointmentStatus.Pending or AppointmentStatus.Confirmed)
+                {
+                    <form asp-action="Complete" asp-route-id="@Model.Id" method="post">
+                        <button type="submit" class="btn btn-outline-success w-100">
+                            <i class="bi bi-check2-all me-2"></i>Завершить
+                        </button>
+                    </form>
+                }
+                @if (Model.Status is not AppointmentStatus.Cancelled and not AppointmentStatus.Completed)
+                {
+                    <form asp-action="Cancel" asp-route-id="@Model.Id" method="post"
+                          onsubmit="return confirm('Отменить запись?')">
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <input type="hidden" name="reason" value="Отменено администратором" />
+                        <button type="submit" class="btn btn-outline-danger w-100">
+                            <i class="bi bi-x-circle me-2"></i>Отменить запись
+                        </button>
+                    </form>
+                }
+            </div>
+        </div>
+
+        @if (Model.Review != null)
+        {
+            <div class="admin-card p-4">
+                <h6 class="text-gold mb-3">Отзыв клиента</h6>
+                <div class="text-gold mb-2">
+                    @Html.Raw(string.Concat(Enumerable.Repeat("★", Model.Review.Rating)))
+                    <span class="text-muted ms-2">@Model.Review.Rating / 5</span>
+                </div>
+                <p class="text-muted">@Model.Review.Comment</p>
+                <div class="text-muted small">@Model.Review.CreatedAt.ToString("dd.MM.yyyy HH:mm")</div>
+            </div>
+        }
+    </div>
+</div>

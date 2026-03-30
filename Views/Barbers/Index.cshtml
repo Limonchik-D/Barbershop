@@ -1,0 +1,49 @@
+@model List<Barber>
+@{
+    ViewData["Title"] = "Наши мастера";
+}
+
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <p class="text-gold text-uppercase small fw-semibold" style="letter-spacing:3px">Команда</p>
+        <h2 class="bs-section-title">Наши <span>мастера</span></h2>
+        <div class="bs-divider mx-auto mt-3"></div>
+    </div>
+
+    <div class="row g-4">
+        @foreach (var barber in Model)
+        {
+            <div class="col-md-4">
+                <div class="bs-barber-card h-100">
+                    @if (!string.IsNullOrEmpty(barber.PhotoUrl))
+                    {
+                        <img src="@barber.PhotoUrl" alt="@barber.FullName" class="bs-barber-avatar" />
+                    }
+                    else
+                    {
+                        <div class="bs-barber-avatar-placeholder"><i class="bi bi-person-circle"></i></div>
+                    }
+                    <div class="p-4">
+                        <h5 class="text-white mb-1">@barber.DisplayName</h5>
+                        <p class="text-gold small mb-1"><i class="bi bi-award me-1"></i>Стаж @barber.ExperienceYears лет</p>
+                        @if (!string.IsNullOrEmpty(barber.Phone))
+                        {
+                            <p class="text-muted small mb-2"><i class="bi bi-telephone me-1"></i>@barber.Phone</p>
+                        }
+                        <p class="text-muted small mb-3">@barber.Bio</p>
+                        <div class="d-flex flex-wrap gap-1 mb-3">
+                            @foreach (var bs in barber.BarberServices.Take(3))
+                            {
+                                <span class="badge rounded-pill" style="background:var(--bs-dark-card2);color:var(--bs-gold);border:1px solid var(--bs-dark-border)">
+                                    @bs.Service.Name
+                                </span>
+                            }
+                        </div>
+                        <a asp-controller="Barbers" asp-action="Details" asp-route-id="@barber.Id"
+                           class="btn bs-btn-outline-gold w-100">Подробнее</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

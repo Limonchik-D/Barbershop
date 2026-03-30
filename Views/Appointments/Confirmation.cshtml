@@ -1,0 +1,50 @@
+@model Appointment
+@{
+    ViewData["Title"] = "Запись подтверждена";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 text-center">
+            <div class="text-success mb-3" style="font-size:5rem"><i class="bi bi-check-circle-fill"></i></div>
+            <h3 class="text-white mb-2">Запись создана!</h3>
+            <p class="text-muted mb-4">Ожидайте подтверждения от администратора</p>
+
+            <div class="bs-card p-4 text-start mb-4">
+                <div class="row g-3">
+                    <div class="col-6">
+                        <div class="text-muted small">Услуга</div>
+                        <div class="text-white">@Model.Service.Name</div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-muted small">Мастер</div>
+                        <div class="text-white">@Model.Barber.FullName</div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-muted small">Дата</div>
+                        <div class="text-white">@Model.AppointmentDate.ToString("dd MMMM yyyy")</div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-muted small">Время</div>
+                        <div class="text-white">@Model.StartTime.ToString("HH:mm") – @Model.EndTime.ToString("HH:mm")</div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-muted small">Стоимость</div>
+                        <div class="text-gold fw-bold">@Model.TotalPrice.ToString("N0") ₽</div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-muted small">Статус</div>
+                        <span class="badge badge-pending rounded-pill px-3">Ожидается</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex gap-3 justify-content-center">
+                <a asp-controller="Account" asp-action="MyAppointments" class="btn bs-btn-outline-gold">
+                    <i class="bi bi-calendar2-check me-1"></i>Мои записи
+                </a>
+                <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">На главную</a>
+            </div>
+        </div>
+    </div>
+</div>

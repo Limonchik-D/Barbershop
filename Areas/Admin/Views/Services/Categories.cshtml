@@ -1,0 +1,48 @@
+@model List<ServiceCategory>
+@{
+    ViewData["Title"] = "Категории услуг";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h5 class="text-white mb-0">Категории услуг</h5>
+    <a asp-action="CreateCategory" class="btn btn-sm bs-btn-gold">
+        <i class="bi bi-plus-lg me-1"></i>Добавить
+    </a>
+</div>
+
+<div class="admin-card">
+    <div class="table-responsive">
+        <table class="table bs-table mb-0">
+            <thead>
+                <tr><th>#</th><th>Название</th><th>Описание</th><th>Порядок</th><th>Статус</th><th></th></tr>
+            </thead>
+            <tbody>
+                @foreach (var cat in Model)
+                {
+                    <tr>
+                        <td class="text-muted">@cat.Id</td>
+                        <td class="text-white">@cat.Name</td>
+                        <td class="text-muted">@cat.Description</td>
+                        <td class="text-muted">@cat.SortOrder</td>
+                        <td>
+                            @if (cat.IsActive)
+                            {
+                                <span class="badge badge-completed rounded-pill px-2">Активна</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-cancelled rounded-pill px-2">Неактивна</span>
+                            }
+                        </td>
+                        <td class="text-end">
+                            <a asp-action="EditCategory" asp-route-id="@cat.Id"
+                               class="btn btn-sm btn-outline-secondary">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
